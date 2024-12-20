@@ -3,7 +3,27 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import JobCard from './JobCard'
 
+import axios from 'axios'
+import { useQuery } from '@tanstack/react-query'
+import LoadingSpinner from './LoadingSpinner'
+
 const TabCategories = () => {
+  const {
+    data: jobs,
+    isLoading,
+    isPending,
+    isFetching,
+    isError,
+  } = useQuery({
+    queryKey: ['jobs'],
+    queryFn: async () => {
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/jobs`)
+      return data
+    },
+  })
+  console.log(isLoading, isPending, isFetching)
+  if (isLoading) return <LoadingSpinner />
+  if (isError) console.log(isError)
   return (
     <Tabs>
       <div className=' container px-6 py-10 mx-auto'>
@@ -25,25 +45,28 @@ const TabCategories = () => {
         </div>
         <TabPanel>
           <div className='grid grid-cols-1 gap-8 mt-8 xl:mt-16 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-            <JobCard />
-            <JobCard />
-            <JobCard />
-            <JobCard />
+            {jobs?.filter(job => job.category === 'Web Development')
+              .map(job => (
+                <JobCard key={job._id} job={job} />
+              ))}
           </div>
         </TabPanel>
 
         <TabPanel>
           <div className='grid grid-cols-1 gap-8 mt-8 xl:mt-16 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-            <JobCard />
-            <JobCard />
+            {jobs?.filter(job => job.category === 'Graphics Design')
+              .map(job => (
+                <JobCard key={job._id} job={job} />
+              ))}
           </div>
         </TabPanel>
 
         <TabPanel>
           <div className='grid grid-cols-1 gap-8 mt-8 xl:mt-16 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-            <JobCard /> <JobCard />
-            <JobCard /> <JobCard />
-            <JobCard /> <JobCard />
+            {jobs?.filter(job => job.category === 'Digital Marketing')
+              .map(job => (
+                <JobCard key={job._id} job={job} />
+              ))}
           </div>
         </TabPanel>
       </div>
